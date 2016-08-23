@@ -9,3 +9,6 @@ target
 bin/
 libexec
 .sbtserver
+checkit.diff
+/app/yugioh
+
