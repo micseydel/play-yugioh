@@ -24,14 +24,8 @@ class ThroughServerPlayer(val name: String)(implicit eventsModule: EventsModule,
   }
 
   def getBoolean: Boolean = {
-    queue.take() match {
-      case "true" => true
-      case "t" => true
-      case "yes" => true
-      case "y" => true
-      case "1" => true
-      case _ => false
-    }
+    val choice = queue.take().toLowerCase
+    collection.Set("true", "t", "yes", "y", "1").contains(choice)
   }
 
   override val field = fieldModule.createField
