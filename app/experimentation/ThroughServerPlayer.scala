@@ -14,17 +14,27 @@ import yugioh.events.{EventsModule, PhaseStartEvent, TurnStartEvent}
 class ThroughServerPlayer(val name: String)(implicit eventsModule: EventsModule, fieldModule: FieldModule) extends Player {
   Me =>
 
-  @volatile var waitingFor = "nothing"
+  private val Nothing = "nothing"
+
+  /**
+    * What this player is waiting for its queue to be populated with.
+    */
+  @volatile var waitingFor = Nothing
   @volatile var fieldStr = "turn has not yet started"
 
   val queue: BlockingQueue[String] = new LinkedBlockingQueue[String]()
 
-  def getInt: Int = {
-    queue.take().toInt
+  def getInt(waitingFor: String): Int = {
+    this.waitingFor = waitingFor
+    val theInt = queue.take().toInt
+    this.waitingFor = Nothing
+    theInt
   }
 
-  def getBoolean: Boolean = {
+  def getBoolean(waitingFor: String): Boolean = {
+    this.waitingFor = waitingFor
     val choice = queue.take().toLowerCase
+    this.waitingFor = "nothing"
     collection.Set("true", "t", "yes", "y", "1").contains(choice)
   }
 
@@ -94,26 +104,23 @@ class ThroughServerPlayer(val name: String)(implicit eventsModule: EventsModule,
   }
 
   override def enterBattlePhase(implicit gameState: GameState) = {
-    waitingFor = "MP1 is ending; enter BP? (If not, will go to EP) "
-    getBoolean
+    getBoolean("MP1 is ending; enter BP? (If not, will go to EP) ")
   }
 
   /**
     * Ask the user for a specific element of a sequence.
     */
-  private def select[A](prompt: String, choices: Seq[A])
-  (implicit gameState: GameState): A = {
+  private def select[A](prompt: String, choices: Seq[A])(implicit gameState: GameState): A = {
 
-    waitingFor = prompt + s" (${gameState.fastEffectTiming}, ${gameState.phase}${Option(gameState.step).map(", " + _).getOrElse("")})" +
+    var waitingFor = prompt + s" (${gameState.fastEffectTiming}, ${gameState.phase}${Option(gameState.step).map(", " + _).getOrElse("")})" +
     choices.zipWithIndex.map {
         case (action, i) => s"($i) $action"
       }.mkString("\n")
 
-
-    var choice = getInt
+    var choice = getInt(waitingFor)
     while (choice < 0 || choice >= choices.size) {
       waitingFor += s"\n\n(an invalid option $choice was used)"
-      choice = getInt
+      choice = getInt(waitingFor)
     }
 
     choices(choice)
@@ -145,8 +152,7 @@ class ThroughServerPlayer(val name: String)(implicit eventsModule: EventsModule,
   override def consentToEnd(implicit gameState: GameState): Boolean = {
     gameState match {
       case GameState(_, TurnPlayers(Me, _), _, phase@(MainPhase | BattlePhase | MainPhase2 | EndPhase), step, _) if !step.isInstanceOf[DamageStepSubStep] && !step.isInstanceOf[BattleStepWithPendingAttack] =>
-        waitingFor = s"End ${Option(step).getOrElse(phase)}?"
-        getBoolean
+        getBoolean(s"End ${Option(step).getOrElse(phase)}?")
       case _ => true
     }
   }
