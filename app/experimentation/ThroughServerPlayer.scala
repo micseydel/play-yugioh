@@ -14,7 +14,7 @@ import yugioh.events.{EventsModule, PhaseStartEvent, TurnStartEvent}
 class ThroughServerPlayer(val name: String)(implicit eventsModule: EventsModule, fieldModule: FieldModule) extends Player {
   Me =>
 
-  private val Nothing = "nothing"
+  private val Nothing = "not waiting for any actions"
 
   /**
     * What this player is waiting for its queue to be populated with.
@@ -112,7 +112,7 @@ class ThroughServerPlayer(val name: String)(implicit eventsModule: EventsModule,
     */
   private def select[A](prompt: String, choices: Seq[A])(implicit gameState: GameState): A = {
 
-    var waitingFor = prompt + s" (${gameState.fastEffectTiming}, ${gameState.phase}${Option(gameState.step).map(", " + _).getOrElse("")})" +
+    var waitingFor = prompt + s" (${gameState.fastEffectTiming}, ${gameState.phase}${Option(gameState.step).map(", " + _).getOrElse("")})\n" +
     choices.zipWithIndex.map {
         case (action, i) => s"($i) $action"
       }.mkString("\n")

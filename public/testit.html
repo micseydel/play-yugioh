@@ -1,0 +1,76 @@
+<style>
+div {
+	border-style: groove;
+}
+</style>
+
+<script>
+
+function submit() {
+	var choice = document.getElementById("choice").value
+
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "http://localhost:9000/choose/" + choice, false);
+	xhr.onload = loadField
+	xhr.send();
+
+    setTimeout(loadEverything, 2000)
+
+	document.getElementById("field").innerHTML = "field loading..."
+	document.getElementById("waitingFor").innerHTML = "\"waiting for\" loading..."
+	document.getElementById("queue").innerHTML = "queue loading..."
+
+    document.getElementById("queue").value = "0"
+}
+
+</script>
+
+
+<pre><div id="field">field loading...</div>
+<div id="waitingFor">"waiting for" loading...</div></pre>
+
+<!-- <form> -->
+	<input id="choice" value="0"/>
+	<input type="submit" onclick="submit()"/>
+<!-- </form> -->
+
+<div id="debugging">
+	<div id="queue">queue loading...</div>
+</div>
+
+
+<script>
+
+function loadField() {
+	document.getElementById("field").innerHTML = this.responseText
+}
+
+function loadWaitingFor() {
+	document.getElementById("waitingFor").innerHTML = this.responseText
+}
+
+function loadQueue() {
+	document.getElementById("queue").innerHTML = this.responseText
+}
+
+function loadEverything() {
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "http://localhost:9000/viewField", false);
+	xhr.onload = loadField
+	xhr.send();
+
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "http://localhost:9000/waitingFor", false);
+	xhr.onload = loadWaitingFor
+	xhr.send();
+
+	// debugging
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "http://localhost:9000/debugging/viewQueue", false);
+	xhr.onload = loadQueue
+	xhr.send();
+}
+
+loadEverything()
+
+</script>

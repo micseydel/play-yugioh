@@ -36,7 +36,7 @@ class ExperimentationController @Inject() extends Controller {
   }
 
   def viewField = Action {
-    Ok(s"Field:\n\n${Main.player1.fieldStr}")
+    Ok(s"Field:\n${Main.player1.fieldStr}")
   }
 }
 
@@ -45,10 +45,11 @@ object Main extends DefaultPlayGameComponent
   with DefaultBattlePhaseModuleComponent
   with DefaultFieldModuleComponent
   with DefaultPhaseModuleComponent
-  with DefaultActionModuleComponent {
+  with DefaultActionModuleComponent
+  with PassivePlayerModuleComponent {
 
   val player1 = new ThroughServerPlayer("Human")(eventsModule, fieldModule)
-  val player2 = new PassivePlayer()(fieldModule)
+  val player2 = newPassivePlayer
 
   override val Players = (player1, player2)
 
