@@ -4,9 +4,9 @@ import java.util.concurrent.{BlockingQueue, LinkedBlockingQueue}
 
 import yugioh.action.Action
 import yugioh.card.Card
-import yugioh.card.monster.{Position, _}
+import yugioh.card.monster.{Monster, Position, SummonCriteria}
 import yugioh.events.{EventsModuleComponent, PhaseStartEvent, TurnStartEvent}
-import yugioh.{Player, TestDeck, _}
+import yugioh._
 
 trait ThroughServerPlayerComponent {
   self: EventsModuleComponent
@@ -164,7 +164,6 @@ trait ThroughServerPlayerComponent {
       // TODO: streamlined logic for when there is only a single possibility
       selectMultiple(s"To summon ${summonCriteria.monster}, please enter comma separated monster(s) to use ($summonCriteria).", summonCriteria)
     }
-
 
     override def selectAttackTarget(attacker: Monster, potentialTargets: Seq[Monster])(implicit gameState: GameState): Monster = {
       select(s"Select target for $attacker", potentialTargets)
