@@ -46,9 +46,10 @@ object Main extends DefaultPlayGameComponent
   with DefaultFieldModuleComponent
   with DefaultPhaseModuleComponent
   with DefaultActionModuleComponent
-  with PassivePlayerModuleComponent {
+  with PassivePlayerModuleComponent
+  with ThroughServerPlayerComponent {
 
-  val player1 = new ThroughServerPlayer("Human")(eventsModule, fieldModule)
+  val player1 = newThroughServerPlayer("Human")
   val player2 = newPassivePlayer
 
   override val Players = (player1, player2)
